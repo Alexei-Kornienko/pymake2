@@ -1,14 +1,15 @@
+## This document and the project in general is still under development and is subject to often modifications ##
 # README #
+pymake2 is a simple Python-based make system. It brings similisity and flexebility of Python to makefiles.
 
-This README would normally document whatever steps are necessary to get your application up and running.
 
-### What is this repository for? ###
+### How to install pymake2 ###
 
 * Quick summary
 * Version
 * [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
 
-### How do I get set up? ###
+### Using pymake2 ###
 
 * Summary of set up
 * Configuration
@@ -17,13 +18,4 @@ This README would normally document whatever steps are necessary to get your app
 * How to run tests
 * Deployment instructions
 
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+### Features of pymake2 ###
