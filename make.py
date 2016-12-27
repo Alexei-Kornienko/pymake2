@@ -30,9 +30,44 @@ def eval(txt):
         utl.print_color('Error: cannot find variable %s'% v, utl.tty_colors.Red)
         sys.exit()
   return newtxt
+
+def get_dir(path):
+  if type(path) is str:
+    dir_str = os.path.dirname(path)
+    return dir_str
+  elif type(path) is list:
+    retPaths = []
+    for p in path:
+      dir_str = os.path.dirname(p)
+      retPaths.append(dir_str)
+    return retPaths
+  else:
+    return None
+  
+def printlist(lst):
+  if type(lst) is not list:
+    lst = lst.split()
+  for i in lst:
+    print i
+  
+  return lst
+    
+def get_filename(path):
+  if type(path) is str:
+    dir_str = os.path.basename(path)
+    return dir_str
+  elif type(path) is list:
+    retPaths = []
+    for p in path:
+      dir_str = os.path.basename(p)
+      retPaths.append(dir_str)
+    return retPaths
+  else:
+    return None
+   
   
 def compile(compiler, flags, sources, objects=None, buildroot=None):
-  utl.print_color('Compiling ...', utl.tty_colors.On_Cyan)
+  # utl.print_color('Compiling ...', utl.tty_colors.On_Cyan)
   if type(sources) is list:
     srcs = sources
   else: # in the case of str
@@ -68,7 +103,8 @@ def compile(compiler, flags, sources, objects=None, buildroot=None):
         objDir = os.path.relpath(objDir, buildroot)
         if not os.path.exists(objDir):
           os.makedirs(objDir)
-    if not run(cmd):
+    utl.print_color('Compiling: %s'%item, utl.tty_colors.On_Cyan)
+    if not run(cmd, show_cmd=True):
       utl.write_color('Error: ', utl.tty_colors.BRed)
       print 'failed to compile, \n  %s'%cmd
       return False
@@ -76,14 +112,43 @@ def compile(compiler, flags, sources, objects=None, buildroot=None):
   return True
     
 def link(linker, flags, objects, executable):
-  utl.print_color('Linking ...', utl.tty_colors.On_Blue)
   if type(objects) is list:
     objs = ' '.join(objects)
   else:
     objs = objects
     
-  cmd = '{linker} {flags} {objs} -o {executable}'.format(linker=linker, flags=flags, objs=objs, executable=executable)
-  return run(cmd)
+  objectsList = objs.split()
+
+  linkFlag = True
+  if os.path.isfile(executable):
+    linkFlag = False
+    exe_mTime = os.path.getmtime(executable)
+    for obj in objectsList:
+      obj_mtime = os.path.getmtime(obj)
+      if obj_mtime > exe_mTime:
+        linkFlag = True
+        break
+  
+  if linkFlag:
+    utl.print_color('Linking ...', utl.tty_colors.On_Blue)
+    cmd = '{linker} {flags} {objs} -o {executable}'.format(linker=linker, flags=flags, objs=objs, executable=executable)
+    return run(cmd, show_cmd=True)
+  else:
+    return True
+    
+
+def normpaths(paths):
+  if type(paths) is str:
+    dir_str = os.path.normpath(paths)
+    return dir_str
+  elif type(paths) is list:
+    retPaths = []
+    for p in paths:
+      dir_str = os.path.normpath(p)
+      retPaths.append(dir_str)
+    return retPaths
+  else:
+    return None
 
 def join(*args):
     try:
@@ -137,7 +202,9 @@ def sh(cmd):
   # sys.stdout.write(out)
   # subc = SubCommand(cmd, WorkingDirectory='./')
   
-def run(cmd):
+def run(cmd, show_cmd=False):
+  if show_cmd:
+    utl.print_color(cmd)
   retV = sarge.run(cmd, shell=True)
   # retV = sarge.run('ls -lah', shell=True)
   return retV.returncode == 0
