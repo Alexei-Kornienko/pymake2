@@ -5,9 +5,9 @@ import re
 import inspect
 import utility as utl
 
-makefileM = None # to be assigned upon importing
+# makefileM = None # to be assigned upon importing
 
-reP = re.compile(r'\$\((\w+)\)')
+# reP = re.compile(r'\$\((\w+)\)')
 
 def eval(txt):
   outerframe = inspect.stack()[1][0]
@@ -66,15 +66,13 @@ def get_filename(path):
     return None
    
   
-def compile(compiler, flags, sources, objects=None, buildroot=None):
+def compile(compiler, flags, sources, objects):
   # utl.print_color('Compiling ...', utl.tty_colors.On_Cyan)
   if type(sources) is list:
     srcs = sources
   else: # in the case of str
     srcs = sources.split()
   
-  if not objects:
-    objects = replace(srcs, '.c', '.o')
   if type(objects) is list:
     objs = objects
   else: # in the case of str
@@ -82,25 +80,28 @@ def compile(compiler, flags, sources, objects=None, buildroot=None):
 
   if len(srcs) != len(objs):
     utl.write_color('Error: ', utl.tty_colors.Red)
-    print 'the length of the source files list does not match with objects files required'
+    print 'the length of the source files list does not match with objects files list'
     return
   
   for i, item in enumerate(srcs):
-    if buildroot:
-      cmd = '{CC} {flags} -c {src} -o {broot}/{obj}'.format(CC=compiler, flags=flags, src=item, broot=buildroot, obj=objs[i])
-    else:
-      cmd = '{CC} {flags} -c {src} -o {obj}'.format(CC=compiler, flags=flags, src=item, obj=objs[i])
+    cmd = '{CC} {flags} -c {src} -o {obj}'.format(CC=compiler, flags=flags, src=item, obj=objs[i])
     
-    if os.path.isfile(objs[i]):
+    srcFile = os.path.basename(item)
+    objFile = os.path.basename(objs[i])
+    srcFile = srcFile.split('.')[0]
+    objFile = objFile.split('.')[0]
+    if srcFile != objFile:
+      utl.write_color('Compiling Error: ', utl.tty_colors.BRed)
+      print 'source file %s and object file %s do not match. Make sure that the source and the object files lists are correspondent'%(item, objs[i])
+      return False
+    if os.path.isfile(objs[i]): # if the object file already exists
       src_mTime = os.path.getmtime(item)
       obj_mtime = os.path.getmtime(objs[i])
       if src_mTime <= obj_mtime:
         continue
     else: # no obj file exists
         objDir = os.path.dirname(objs[i])
-        if not buildroot:
-          buildroot = os.path.relpath('./')
-        objDir = os.path.relpath(objDir, buildroot)
+        objDir = os.path.normpath(objDir)
         if not os.path.exists(objDir):
           os.makedirs(objDir)
     utl.print_color('Compiling: %s'%item, utl.tty_colors.On_Cyan)
