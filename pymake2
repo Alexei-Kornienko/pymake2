@@ -183,6 +183,9 @@ def main():
   import imp
   pkgdir = os.path.normpath(os.path.dirname(__file__) + '/../')
   sys.path.insert(0, pkgdir)
+  if os.path.exists('/opt/pymake2'):
+    sys.path.insert(0, '/opt/')
+    
   makefileM = imp.load_source('makefileM', MakefilePath)
   Debug = getattr(makefileM, 'Debug', False)
   Targets = Parse_Makefile(MakefilePath, makefileM) #type: dict[str, Target_t]
@@ -192,9 +195,10 @@ def main():
       selected_Target = Targets[args.t.strip()] #type: Target_t
       # func = getattr(makefileM, args.t)
     except:
-      util.print_color('Error parsing target function "%s"'%selected_Target.Name, util.tty_colors.BRed)
+      util.print_color('Error: target function "%s" does not exist!'%args.t, util.tty_colors.BRed)
       if Debug:
         traceback.print_exc()
+      sys.exit()
 
      
     retV = selected_Target.run()
