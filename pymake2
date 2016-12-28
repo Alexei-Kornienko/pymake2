@@ -171,7 +171,7 @@ def main():
   
   argcomplete.autocomplete(parser)
   args = parser.parse_args()
-
+  
   if args.f:
     MakefilePath = args.f
   elif Auto_Target():
@@ -181,6 +181,8 @@ def main():
     sys.exit()
   
   import imp
+  pkgdir = os.path.normpath(os.path.dirname(__file__) + '/../')
+  sys.path.insert(0, pkgdir)
   makefileM = imp.load_source('makefileM', MakefilePath)
   Debug = getattr(makefileM, 'Debug', False)
   Targets = Parse_Makefile(MakefilePath, makefileM) #type: dict[str, Target_t]
