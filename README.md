@@ -5,8 +5,8 @@ pymake2 is a simple Python-based make system. It brings simplicity and flexibili
 ### How to install pymake2 ###
 1. you can always clone the repository and install it manually
 2. for Debian-based systems such Ubuntu I advise to use the .deb package provided in the download section ([click-here](https://bitbucket.org/saudalwasly/pymake2/downloads))
-    * then you can install by running the following command 
-    ```bash
+    * then you can install it by running the following command 
+    ```
     sudo dpkg -i pymake2_X.X-X.deb
     ```
 
