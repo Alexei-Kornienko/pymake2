@@ -1,5 +1,8 @@
 #! /usr/bin/env python
 # PYTHON_ARGCOMPLETE_OK
+import time
+
+__author__ = 'Saud Wasly'
 
 Debug = False
 #Debug = True
@@ -16,6 +19,7 @@ import os
 import sys
 import traceback
 import utility as util
+import make
 fd_out = None # used to bash auto complete only
 
 class Target_t(object):
@@ -30,6 +34,9 @@ class Target_t(object):
     self.Dependencies = args_var
     
   def check_dependencies(self):
+    if len(self.Dependencies) == 0:
+      return True
+    
     util.print_color('Dependency checking of Target "%s"' % self.Name, util.tty_colors.On_Cyan)
     for i, item in enumerate(self.Dependencies):
       if type(item) is list:
@@ -164,7 +171,7 @@ def print_cmd():
 def main():
   global Debug
   parser = argparse.ArgumentParser(description='pymake2 is a simple make system implemented in python')
-  parser.add_argument('t', metavar='Target', help='the make target in the make file').completer = complete_targets
+  parser.add_argument('t', metavar='Target', help='the make target in the makefile').completer = complete_targets
   parser.add_argument('-f', metavar='MakefilePath', help='to pass a makefile, default = ./makefile.py')
   # parser.add_argument('-t', metavar='Target', help='the make target in the make file').completer = complete_targets
   parser.add_argument('-j', metavar='Jobs', type=int, help='number of jobs used in the make process')
@@ -187,6 +194,7 @@ def main():
     sys.path.insert(0, '/opt/')
     
   makefileM = imp.load_source('makefileM', MakefilePath)
+  make.shell('rm -f *.pyc')
   Debug = getattr(makefileM, 'Debug', False)
   Targets = Parse_Makefile(MakefilePath, makefileM) #type: dict[str, Target_t]
   

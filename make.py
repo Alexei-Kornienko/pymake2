@@ -1,3 +1,5 @@
+__author__ = 'Saud Wasly'
+
 import sys
 import os
 import sarge
