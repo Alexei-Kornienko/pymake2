@@ -34,6 +34,9 @@ The following snippet shows a makefile example.
 ```python
 from pymake2 import *
 Debug = False # <-- set it to True to enable more debugging messages 
+HighlightErrors = True # To enable the highliter
+HighlightWarnings = True # To enable the highliter
+HighlightNotes = True # To enable the highliter
 #######################################################
 # Project Specifications
 # Specificity the Executable output file
@@ -87,6 +90,7 @@ LINKFLAGS           = eval('$(LikerScript) -nostdlib -march=mips1 -ffreestanding
 @target
 def all(ObjProj): # <-- depends on the target "ObjProj"
   if link(CC, LINKFLAGS, join(startobj, OBJ_All), executable):
+    printcolor('build succeeded', fg='32', B=True)
     run('mips-objdump -D %s > disassembly.txt'%executable)
     run('mips-readelf -a %s > elfdump.txt'%executable)
     run('mips-objdump --dwarf=info %s > dwarfinfo.txt'%executable)
