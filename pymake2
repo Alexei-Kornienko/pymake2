@@ -5,6 +5,8 @@ import time
 __author__ = 'Saud Wasly'
 
 Debug = False
+HighlightErrors = False
+HighlightWarnings = False
 #Debug = True
 
 import argparse
@@ -37,22 +39,22 @@ class Target_t(object):
     if len(self.Dependencies) == 0:
       return True
     
-    util.print_color('Dependency checking of Target "%s"' % self.Name, util.tty_colors.On_Cyan)
+    util.print_color('Dependency checking of Target "%s"' % self.Name, util.tty_colors_cmds.On_Cyan)
     for i, item in enumerate(self.Dependencies):
       if type(item) is list:
         for subitem in item: # assumed to be list of file names (paths)
           if not os.path.isfile(subitem):
-            util.write_color('Dependency Error @ Target "%s": '%self.Name, util.tty_colors.BRed)
+            util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
             print '%s does not exsist!'%subitem
             return False
       elif type(item) is str:
         if not os.path.isfile(item):
-          util.write_color('Dependency Error @ Target "%s": '%self.Name, util.tty_colors.BRed)
+          util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
           print '%s does not exsist!' % item
           return False
       elif type(item) is Target_t: #another target
         if not item.run():
-          util.write_color('Dependency Error @ Target "%s": '%self.Name, util.tty_colors.BRed)
+          util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
           print 'Target "%s" failed' % item.Name
           return False
     
@@ -60,7 +62,7 @@ class Target_t(object):
   
   def run(self):
     if self.check_dependencies():
-      util.print_color('Executing Target "%s"' % self.Name, util.tty_colors.On_Cyan)
+      util.print_color('Executing Target "%s"' % self.Name, util.tty_colors_cmds.On_Cyan)
       try:
         if len(self.args_var) == 0:
           retV = self.func()
@@ -68,7 +70,7 @@ class Target_t(object):
           retV = self.func(*self.args_var)
         return retV
       except:
-        util.print_color('Internal error in the target function "%s"' % self.Name, util.tty_colors.BRed)
+        util.print_color('Internal error in the target function "%s"' % self.Name, util.tty_colors_cmds.BRed)
         if Debug:
           traceback.print_exc()
 
@@ -169,7 +171,7 @@ def print_cmd():
   fout.close()
   
 def main():
-  global Debug
+  global Debug, HighlightErrors, HighlightWarnings
   parser = argparse.ArgumentParser(description='pymake2 is a simple make system implemented in python')
   parser.add_argument('t', metavar='Target', help='the make target in the makefile').completer = complete_targets
   parser.add_argument('-f', metavar='MakefilePath', help='to pass a makefile, default = ./makefile.py')
@@ -196,6 +198,8 @@ def main():
   makefileM = imp.load_source('makefileM', MakefilePath)
   make.shell('rm -f *.pyc')
   Debug = getattr(makefileM, 'Debug', False)
+  HighlightErrors = getattr(makefileM, 'HighlightErrors', False)
+  HighlightWarnings = getattr(makefileM, 'Debug', False)
   Targets = Parse_Makefile(MakefilePath, makefileM) #type: dict[str, Target_t]
   
   if args.t:
@@ -203,7 +207,7 @@ def main():
       selected_Target = Targets[args.t.strip()] #type: Target_t
       # func = getattr(makefileM, args.t)
     except:
-      util.print_color('Error: target function "%s" does not exist!'%args.t, util.tty_colors.BRed)
+      util.print_color('Error: target function "%s" does not exist!' % args.t, util.tty_colors_cmds.BRed)
       if Debug:
         traceback.print_exc()
       sys.exit()

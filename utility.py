@@ -1,6 +1,7 @@
 from sys import stdout
+import inspect
 
-class tty_colors:
+class tty_colors_cmds:
   # Reset
   Color_Off='\033[0m'       # Text Reset
   
@@ -74,16 +75,119 @@ class tty_colors:
   On_ICyan='\033[0;106m'    # Cyan
   On_IWhite='\033[0;107m'   # White
 
-def print_color(txt, color=tty_colors.Color_Off):
+
+class tty_colors:
+  # Reset
+  Color_Off = '0'  # Text Reset
+  
+  # Regular Colors
+  Black = '30'  # Black
+  Red = '31'  # Red
+  Green = '32'  # Green
+  Yellow = '33'  # Yellow
+  Blue = '34'  # Blue
+  Purple = '35'  # Purple
+  Cyan = '36'  # Cyan
+  White = '37'  # White
+  
+  # High Intensity
+  IBlack = '90'  # Black
+  IRed = '91'  # Red
+  IGreen = '92'  # Green
+  IYellow = '93'  # Yellow
+  IBlue = '94'  # Blue
+  IPurple = '95'  # Purple
+  ICyan = '96'  # Cyan
+  IWhite = '97'  # White
+  
+  # Background
+  On_Black = '40'  # Black
+  On_Red = '41'  # Red
+  On_Green = '42'  # Green
+  On_Yellow = '43'  # Yellow
+  On_Blue = '44'  # Blue
+  On_Purple = '45'  # Purple
+  On_Cyan = '46'  # Cyan
+  On_White = '47'  # White
+  
+  # High Intensity backgrounds
+  On_IBlack = '100'  # Black
+  On_IRed = '101'  # Red
+  On_IGreen = '102'  # Green
+  On_IYellow = '103'  # Yellow
+  On_IBlue = '104'  # Blue
+  On_IPurple = '105'  # Purple
+  On_ICyan = '106'  # Cyan
+  On_IWhite = '107'  # White
+
+
+def print_color(txt, color=tty_colors_cmds.Color_Off):
   out = '%s%s'%(color, txt)
   stdout.write(out)
   #reset
-  stdout.write(tty_colors.Color_Off)
+  stdout.write(tty_colors_cmds.Color_Off)
   stdout.write('\n')
 
-def write_color(txt, color=tty_colors.Color_Off):
+def write_color(txt, color=tty_colors_cmds.Color_Off):
   out = '%s%s'%(color, txt)
   stdout.write(out)
   #reset
-  stdout.write(tty_colors.Color_Off)
+  stdout.write(tty_colors_cmds.Color_Off)
+
+def get_colored(txt, fg_color='', bg_color='', Bold=False):
+  B = '1' if Bold else '0'
+  fg = fg_color if fg_color == '' else ';' + fg_color
+  bg = bg_color if bg_color == '' else ';' + bg_color
   
+  ttycmd = '\033[{B}{fg}{bg}m{txt}\033[0m'.format(B=B,fg=fg,bg=bg, txt=txt)
+  return ttycmd
+  
+def tty_reset():
+  stdout.write('\e[0m')
+  
+def HighlightWarnings(txt):
+  #type:(str) -> str
+  
+  repWith = get_colored('Warning', tty_colors.Yellow, tty_colors.On_IBlack, Bold=True)
+  reTV = txt.replace('warning', repWith)
+  return reTV
+  
+def HighlightErrors(txt):
+  #type:(str) -> str
+  repWith = get_colored('Error', tty_colors.Red, tty_colors.On_IBlack, Bold=True)
+  reTV = txt.replace('error', repWith)
+  return reTV
+
+def HighlightNotes(txt):
+  #type:(str) -> str
+  repWith = get_colored('Note', tty_colors.Cyan, Bold=True)
+  reTV = txt.replace('note', repWith)
+  return reTV
+
+def is_Highlight_ON():
+  outerframe = inspect.stack()[1][0]
+  outerframe = outerframe.f_back
+  outerframeGlobals = outerframe.f_globals
+  
+  try:
+    HighlightWarnings = outerframeGlobals['HighlightWarnings']
+    if HighlightWarnings:
+      return True
+  except:
+    pass
+  
+  try:
+    HighlightErrors = outerframeGlobals['HighlightErrors']
+    if HighlightErrors:
+      return True
+  except:
+    pass
+  
+  try:
+    HighlightNotes = outerframeGlobals['HighlightNotes']
+    if HighlightNotes:
+      return True
+  except:
+    pass
+
+  return False
