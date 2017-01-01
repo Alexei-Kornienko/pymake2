@@ -5,8 +5,8 @@ import os
 import sarge
 import re
 import inspect
-import utility as utl
-
+import utility as util
+ 
 # makefileM = None # to be assigned upon importing
 
 # reP = re.compile(r'\$\((\w+)\)')
@@ -29,9 +29,42 @@ def eval(txt):
       if val:
         newtxt = newtxt.replace('{%s}' % v, val)
       else:
-        utl.print_color('Error: cannot find variable %s'% v, utl.tty_colors.Red)
+        util.print_color('Error: cannot find variable %s' % v, util.tty_colors_cmds.Red)
         sys.exit()
   return newtxt
+
+def printcolor(txt, fg='', bg='', B=False):
+  msg = util.get_colored(txt, fg, bg, B)
+  print msg
+def Highlight_Outputs(txt):
+  outerframe = inspect.stack()[1][0]
+  outerframe = outerframe.f_back
+  outerframeGlobals = outerframe.f_globals
+
+  retV = txt
+  try:
+    HighlightWarnings = outerframeGlobals['HighlightWarnings']
+    if HighlightWarnings:
+      retV = util.HighlightWarnings(retV)
+  except:
+    pass
+
+  try:
+    HighlightErrors = outerframeGlobals['HighlightErrors']
+    if HighlightErrors:
+      retV = util.HighlightErrors(retV)
+  except:
+    pass
+
+  try:
+    HighlightNotes = outerframeGlobals['HighlightNotes']
+    if HighlightNotes:
+      retV = util.HighlightNotes(retV)
+  except:
+    pass
+
+  return retV
+
 
 def get_dir(path):
   if type(path) is str:
@@ -70,6 +103,8 @@ def get_filename(path):
   
 def compile(compiler, flags, sources, objects):
   # utl.print_color('Compiling ...', utl.tty_colors.On_Cyan)
+  Highlight_NO = True if util.is_Highlight_ON() else False
+    
   if type(sources) is list:
     srcs = sources
   else: # in the case of str
@@ -81,7 +116,7 @@ def compile(compiler, flags, sources, objects):
     objs= objects.split()
 
   if len(srcs) != len(objs):
-    utl.write_color('Error: ', utl.tty_colors.Red)
+    util.write_color('Error: ', util.tty_colors_cmds.Red)
     print 'the length of the source files list does not match with objects files list'
     return
   
@@ -93,7 +128,7 @@ def compile(compiler, flags, sources, objects):
     srcFile = srcFile.split('.')[0]
     objFile = objFile.split('.')[0]
     if srcFile != objFile:
-      utl.write_color('Compiling Error: ', utl.tty_colors.BRed)
+      util.write_color('Compiling Error: ', util.tty_colors_cmds.BRed)
       print 'source file %s and object file %s do not match. Make sure that the source and the object files lists are correspondent'%(item, objs[i])
       return False
     if os.path.isfile(objs[i]): # if the object file already exists
@@ -106,9 +141,15 @@ def compile(compiler, flags, sources, objects):
         objDir = os.path.normpath(objDir)
         if not os.path.exists(objDir):
           os.makedirs(objDir)
-    utl.print_color('Compiling: %s'%item, utl.tty_colors.On_Cyan)
-    if not run(cmd, show_cmd=True):
-      utl.write_color('Error: ', utl.tty_colors.BRed)
+   
+    util.print_color('Compiling: %s' % item, util.tty_colors_cmds.On_Cyan)
+    success, outputs = sh(cmd, True, Highlight_NO)
+    if Highlight_NO:
+      print(Highlight_Outputs(outputs))
+      
+    if not success:
+    # if not run(cmd, show_cmd=True):
+      util.write_color('Error: ', util.tty_colors_cmds.BRed)
       print 'failed to compile, \n  %s'%cmd
       return False
   
@@ -133,9 +174,18 @@ def link(linker, flags, objects, executable):
         break
   
   if linkFlag:
-    utl.print_color('Linking ...', utl.tty_colors.On_Blue)
+    util.print_color('Linking ...', util.tty_colors_cmds.On_Blue)
     cmd = '{linker} {flags} {objs} -o {executable}'.format(linker=linker, flags=flags, objs=objs, executable=executable)
-    return run(cmd, show_cmd=True)
+    hl = util.is_Highlight_ON()
+    success, outputs = sh(cmd, True, hl)
+    if hl:
+      print(Highlight_Outputs(outputs))
+    
+    if not success:
+      util.print_color("Failed to link object files to assemble '%s'"%executable, util.tty_colors_cmds.BRed)
+      return False
+    else:
+      return True
   else:
     return True
     
@@ -191,23 +241,29 @@ def shell(cmd):
   P = sarge.run(cmd, shell=True, stdout=sarge.Capture())
   return P.stdout.text
 
-def sh(cmd):
-  P = sarge.run(cmd, shell=True, stdout=sarge.Capture())
-  return P.stdout.text
-  # out = commands.getoutput(cmd)
-  # out = pexpect.run(cmd, cwd='./')
-  # cmd2 = "sh -c '%s'" % cmd
-  # out = pexpect.run(cmd2)
-  # out = sarge.run(cmd2)
-  # out = sarge.run(cmd, shell=True)
-  # out = sarge.run(cmd, shell=True, async=True)
-  # sys.exit()
-  # sys.stdout.write(out)
-  # subc = SubCommand(cmd, WorkingDirectory='./')
+def sh(cmd, show_cmd=False, CaptureOutput = True):
+  if show_cmd:
+    print(cmd)
+
+  if CaptureOutput:
+    P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
+  else:
+    P = sarge.run(cmd, shell=True)
+  
+  outputs = ''
+  if len(P.stdout.text) > 0:
+    outputs = P.stdout.text
+  if len(P.stderr.text) > 0:
+    if outputs == '':
+      outputs = P.stderr.text
+    else:
+      outputs += '\n' + P.stderr.text
+      
+  return P.returncode==0, outputs
   
 def run(cmd, show_cmd=False):
   if show_cmd:
-    utl.print_color(cmd)
+    print(cmd)
   retV = sarge.run(cmd, shell=True)
   # retV = sarge.run('ls -lah', shell=True)
   return retV.returncode == 0
