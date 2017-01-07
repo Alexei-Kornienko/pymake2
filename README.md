@@ -1,5 +1,5 @@
 # README #
-pymake2 is a simple Python-based make system. It brings simplicity and flexibility of Python language to makefiles. The name 'pymake2' is chose because 'pymake' is already used for another tool that re-implements the GNU make in python. pymake2 is different from pymake as it does not try to re-implements GNU make, but a new simple make system that uses Python for makefiles to lavage the language richness and flexibility. pymake2 parses makefile-like python scripts and provides useful messages to help understand what went wrong in the build process.
+pymake2 is a simple Python-based make system. It brings simplicity and flexibility of Python language to makefiles. The name 'pymake2' is chosen because 'pymake' is already used for another tool that re-implements the GNU make in python. pymake2 is different from pymake as it does not try to re-implements GNU make, but a new simple make system that uses Python for makefiles to lavage the language richness and flexibility. pymake2 parses makefile-like python scripts and provides useful messages to help understand what went wrong in the build process.
 
 
 ### How to install pymake2 ###
