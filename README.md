@@ -86,7 +86,7 @@ OBJ_All  = normpaths(OBJ_All) # a nice obj-files list directed in the build fold
 CC                  = 'mips-gcc'
 AR                  = 'mips-ar'
 IncludePaths        = Includes
-LibPaths            = '-L /home/saud/Dropbox/pycharmProjects/ERA/compiler/ERAPlatform/mips/'
+LibPaths            = '-L $(ERAPlatformDir)/mips/'
 CFLAGS              = eval('-std=c99 -nostdlib -O1 -msoft-float -march=mips1 -EL -g -Wall $(IncludePaths)')
 LINKFLAGS           = eval('$(LikerScript) -nostdlib -march=mips1 -ffreestanding -EL -Xlinker -Map=output.map $(LibPaths) -lc')
 ########################################################
