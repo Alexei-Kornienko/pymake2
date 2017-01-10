@@ -153,6 +153,9 @@ First of all, `makefile.py` must import pymake2. To enable detailed error messag
     - `archive(...)`: if necessary, archives the object files to provide the output library using the passed archiver such as `gcc-ar` along with the passed flags.
 - pymake2 automatically recognizes space-separated lists (used in makefiles for source or object files) and converts them to Python lists. Therefore, the commands provided by pymake2 such as `compile` and `link` accepts both formats (Python list, and space-separated list).
 
+###Screenshots###
+![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
+
 
 ### License ###
 pymake2 is distributed under MIT license.
