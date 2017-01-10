@@ -154,15 +154,18 @@ First of all, `makefile.py` must import pymake2. To enable detailed error messag
 - pymake2 automatically recognizes space-separated lists (used in makefiles for source or object files) and converts them to Python lists. Therefore, the commands provided by pymake2 such as `compile` and `link` accepts both formats (Python list, and space-separated list).
 
 ###Screenshots###
-Succesfull build with highlighted compile warnings
-![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/a7509f63bdcfd4343fb119227929cf8898d2181d/screenshots/screenshot_1.png "screenshot example of a successful build")
+Succesfull build with highlighted compile warnings.<br>
+![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/eb224dac994da5fb0d660edf19ac2792e46544e9/screenshots/screenshot_1.png "screenshot example of a successful build")
+<br><br><br><br>
 
-Rebuilding the same target yields already satisfied dependencies and not need to recompile and link
-![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/a7509f63bdcfd4343fb119227929cf8898d2181d/screenshots/screenshot_2.png "screenshot example of a successful build")
+Rebuilding the same target yields already satisfied dependencies and not need to recompile and link.<br>
+![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/eb224dac994da5fb0d660edf19ac2792e46544e9/screenshots/screenshot_2.png "screenshot example of a successful build")
+<br><br><br><br>
 
-Building for the target `Tlib` failed after cleaning as it depends on all object files `OBJ_All`.
-![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/a7509f63bdcfd4343fb119227929cf8898d2181d/screenshots/screenshot_3.png "screenshot example of a successful build")
 
+Building for the target `Tlib` failed after cleaning as it depends on all object files `OBJ_All`.<br>
+![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/eb224dac994da5fb0d660edf19ac2792e46544e9/screenshots/screenshot_3.png "screenshot example of a failed on dependency")
+<br><br><br><br>
 
 ### License ###
 pymake2 is distributed under MIT license.
