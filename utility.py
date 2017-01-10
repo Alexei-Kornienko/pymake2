@@ -1,6 +1,8 @@
 from sys import stdout
 import inspect
+import traceback
 
+from time import time, sleep
 class tty_colors_cmds:
   # Reset
   Color_Off='\033[0m'       # Text Reset
@@ -150,20 +152,47 @@ def HighlightWarnings(txt):
   
   repWith = get_colored('Warning', tty_colors.Yellow, tty_colors.On_IBlack, Bold=True)
   reTV = txt.replace('warning', repWith)
+  reTV = reTV.replace('Warning', repWith)
   return reTV
   
 def HighlightErrors(txt):
   #type:(str) -> str
   repWith = get_colored('Error', tty_colors.Red, tty_colors.On_IBlack, Bold=True)
   reTV = txt.replace('error', repWith)
+  reTV = reTV.replace('Error', repWith)
   return reTV
 
 def HighlightNotes(txt):
   #type:(str) -> str
   repWith = get_colored('Note', tty_colors.Cyan, Bold=True)
   reTV = txt.replace('note', repWith)
+  reTV = reTV.replace('Note', repWith)
+
+  repWith = get_colored('Info', tty_colors.Cyan, Bold=True)
+  reTV = reTV.replace('info', repWith)
+  reTV = reTV.replace('Info', repWith)
+
   return reTV
 
+def get_makefile_var(var_str):
+  """
+  :param var_str: str
+  :return:
+  """
+  outerframe = inspect.stack()[1][0]
+  outerframe = outerframe.f_back.f_back
+  outerframeGlobals = outerframe.f_globals
+
+  try:
+    var = outerframeGlobals[var_str]
+    return var
+  except:
+    return None
+
+def Print_Debuging_messages():
+  print_color('Debugging message: (Program Exception)', tty_colors_cmds.On_Red)
+  traceback.print_exc()
+  
 def is_Highlight_ON():
   outerframe = inspect.stack()[1][0]
   outerframe = outerframe.f_back
@@ -191,3 +220,20 @@ def is_Highlight_ON():
     pass
 
   return False
+
+def wait_process(Timeout, Proc):
+  T1 = time()
+  while time() - T1 < Timeout:
+    alive = Proc.poll()
+    if alive is not None:
+      return
+    sleep(0.1)
+
+def kill_alive_process(Proc):
+  alive = Proc.poll()
+  if alive is None:
+    try:
+      Proc.kill()
+    except:
+      pass
+  

@@ -6,7 +6,7 @@ import sarge
 import re
 import inspect
 import utility as util
- 
+
 # makefileM = None # to be assigned upon importing
 
 # reP = re.compile(r'\$\((\w+)\)')
@@ -275,32 +275,61 @@ def shell(cmd):
   P = sarge.run(cmd, shell=True, stdout=sarge.Capture())
   return P.stdout.text
 
-def sh(cmd, show_cmd=False, CaptureOutput = True):
+def sh(cmd, show_cmd=False, CaptureOutput = False, Timeout = -1):
   if show_cmd:
     print(cmd)
-
-  if CaptureOutput:
-    P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
-  else:
-    P = sarge.run(cmd, shell=True)
-  
-  outputs = ''
-  if len(P.stdout.text) > 0:
-    outputs = P.stdout.text
-  if len(P.stderr.text) > 0:
-    if outputs == '':
-      outputs = P.stderr.text
+  try:
+    if CaptureOutput:
+      if Timeout > -1:
+        P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture(), async=True)
+        CMD = P.commands[0] #type: sarge.Command
+        util.wait_process(Timeout, CMD)
+        util.kill_alive_process(CMD)
+      else:
+        P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
     else:
-      outputs += '\n' + P.stderr.text
-      
-  return P.returncode==0, outputs
+      if Timeout > -1:
+        P = sarge.run(cmd, shell=True, async=True)
+        CMD = P.commands[0] #type: sarge.Command
+        util.wait_process(Timeout, CMD)
+        util.kill_alive_process(CMD)
+      else:
+        P = sarge.run(cmd, shell=True)
+    
+    outputs = ''
+
+    if P.stdout and len(P.stdout.text) > 0:
+      outputs = P.stdout.text
+    if P.stderr and len(P.stderr.text) > 0:
+      if outputs == '':
+        outputs = P.stderr.text
+      else:
+        outputs += '\n' + P.stderr.text
+    return P.returncode == 0, outputs
+  except:
+    if util.get_makefile_var('Debug') == True:
+      util.Print_Debuging_messages()
   
-def run(cmd, show_cmd=False):
-  if show_cmd:
-    print(cmd)
-  retV = sarge.run(cmd, shell=True)
-  # retV = sarge.run('ls -lah', shell=True)
-  return retV.returncode == 0
+    return False, ''
+    
+  
+  
+def run(cmd, show_cmd=False, Highlight=False, Timeout = -1):
+  """
+  :param cmd: (str) the shell command
+  :param show_cmd: (bool) print the command before executing it
+  :param Highlight: (bool) apply color highlights for the outputs
+  :return:
+  """
+  if Highlight:
+    success, outputs = sh(cmd, show_cmd, True, Timeout)
+    hl_out = Highlight_Outputs(outputs)
+    print(hl_out)
+  else:
+    success, outputs = sh(cmd, show_cmd, False, Timeout)
+    # retV = sarge.run(cmd, shell=True)
+  
+  return success
 
 def target(func):
   """

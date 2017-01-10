@@ -68,6 +68,8 @@ class Target_t(object):
           retV = self.func()
         else:
           retV = self.func(*self.args_var)
+          if not retV:
+            util.print_color('Target "%s" failed' %self.Name , util.tty_colors_cmds.BRed)
         return retV
       except:
         util.print_color('Internal error in the target function "%s"' % self.Name, util.tty_colors_cmds.BRed)
