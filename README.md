@@ -155,15 +155,18 @@ First of all, `makefile.py` must import pymake2. To enable detailed error messag
 
 ###Screenshots###
 Succesfull build with highlighted compile warnings.<br>
+
 ![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/eb224dac994da5fb0d660edf19ac2792e46544e9/screenshots/screenshot_1.png "screenshot example of a successful build")
 <br><br><br><br>
 
 Rebuilding the same target yields already satisfied dependencies and not need to recompile and link.<br>
+
 ![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/eb224dac994da5fb0d660edf19ac2792e46544e9/screenshots/screenshot_2.png "screenshot example of a successful build")
 <br><br><br><br>
 
 
 Building for the target `Tlib` failed after cleaning as it depends on all object files `OBJ_All`.<br>
+
 ![alt text](https://bytebucket.org/saudalwasly/pymake2/raw/eb224dac994da5fb0d660edf19ac2792e46544e9/screenshots/screenshot_3.png "screenshot example of a failed on dependency")
 <br><br><br><br>
 
