@@ -93,21 +93,28 @@ LINKFLAGS           = eval('$(LikerScript) -nostdlib -march=mips1 -ffreestanding
 
 ################## Targets #############################
 @target
-def all(ObjProj): # <-- depends on the target "ObjProj"
+def all(Tlink): # <-- depends on the target "Tlink"
+  run('mips-objdump -D %s > disassembly.txt'%executable)
+  run('mips-readelf -a %s > elfdump.txt'%executable)
+  run('mips-objdump --dwarf=info %s > dwarfinfo.txt'%executable)
+  run('mips-size %s'%executable)
+  printcolor('build succeeded', fg='32', B=True)
+  return True
+
+@target
+def Tlink(Tcompile): # <-- depends on the target "Tcompile"
   if link(CC, LINKFLAGS, join(startobj, OBJ_All), executable):
-    printcolor('build succeeded', fg='32', B=True)
-    run('mips-objdump -D %s > disassembly.txt'%executable)
-    run('mips-readelf -a %s > elfdump.txt'%executable)
-    run('mips-objdump --dwarf=info %s > dwarfinfo.txt'%executable)
-    run('mips-size %s'%executable)
     return True
 
 @target
-def ObjProj(CSRC_ALL): # <-- depends on all source files
+def Tcompile(CSRC_ALL): # <-- depends on all source files
   if compile(CC, CFLAGS, CSRC_ALL, OBJ_All):
-  # if compile(CC, CFLAGS, CSRC_ALL):
     return True
-# objs: $(CObjAll)  
+
+@target
+def Tlib(OBJ_All): # <-- depends on all object files
+  if archive(AR, 'ru', OBJ_All, 'lib.a'):
+    return True
 
 @target
 def startup(['CPU0Startup.s', 'CPU0Startup.s']): # accepts str, list, and function
