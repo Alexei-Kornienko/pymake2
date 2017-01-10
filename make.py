@@ -188,6 +188,40 @@ def link(linker, flags, objects, executable):
       return True
   else:
     return True
+  
+def archive(archiver, flags, objects, library):
+  if type(objects) is list:
+    objs = ' '.join(objects)
+  else:
+    objs = objects
+    
+  objectsList = objs.split()
+
+  satisfactionFlag = False
+  if os.path.isfile(library):
+    satisfactionFlag = True
+    output_mTime = os.path.getmtime(library)
+    for obj in objectsList:
+      obj_mtime = os.path.getmtime(obj)
+      if obj_mtime > output_mTime:
+        satisfactionFlag = False
+        break
+  
+  if not satisfactionFlag:
+    util.print_color('Archiving...', util.tty_colors_cmds.On_Blue)
+    cmd = '{AR} {flags} {output} {objs}'.format(AR=archiver, flags=flags, objs=objs, output=library)
+    hl = util.is_Highlight_ON()
+    success, outputs = sh(cmd, True, hl)
+    if hl:
+      print(Highlight_Outputs(outputs))
+    
+    if not success:
+      util.print_color("Failed to archive object files to assemble '%s'" % library, util.tty_colors_cmds.BRed)
+      return False
+    else:
+      return True
+  else:
+    return True
     
 
 def normpaths(paths):

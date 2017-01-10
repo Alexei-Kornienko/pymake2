@@ -1,13 +1,17 @@
 # README #
-pymake2 is a simple Python-based make system. It brings simplicity and flexibility of Python language to makefiles. The name 'pymake2' is chosen because 'pymake' is already used for another tool that re-implements the GNU make in python. pymake2 is different from pymake as it does not try to re-implements GNU make, but a new simple make system that uses Python for makefiles to lavage the language richness and flexibility. pymake2 parses makefile-like python scripts and provides useful messages to help understand what went wrong in the build process.
+pymake2 is a simple Python-based make system. It brings simplicity and flexibility of Python language to makefiles. The name 'pymake2' is chosen because 'pymake' is already used for another tool that re-implements the GNU make in python. pymake2 is different from pymake as it does not try to re-implements GNU make, but a new simple make system that uses Python for makefiles to leverage the language richness and flexibility. pymake2 parses makefile-like python scripts and provides useful messages to help understand what goes wrong during the build process.
 
 
 ### How to install pymake2 ###
-1. you can always clone the repository and install it manually
-2. for Debian-based systems such Ubuntu I advise to use the .deb package provided in the download section ([click-here](https://bitbucket.org/saudalwasly/pymake2/downloads))
-    * then you can install it by running the following command 
+1. you can always clone the repository and install it manually by copying the files to a destination directory and add it to the $PATH
+2. for Debian-based systems such Ubuntu I suggest to use the .deb package provided in the download section ([click-here](https://bitbucket.org/saudalwasly/pymake2/downloads))
+    * then you can install it by running the following command:
     ```
-    sudo dpkg -i pymake2_X.X-X.deb
+    sudo dpkg -i pymake2_X.X-X.deb    
+    ```
+    * to uninstall it, just use the following command:
+    ```
+    sudo apt-get remove pymake2
     ```
 
 ### Using pymake2 ###
@@ -80,6 +84,7 @@ OBJ_All  = normpaths(OBJ_All) # a nice obj-files list directed in the build fold
 #######################################################
 ## toolchain specification
 CC                  = 'mips-gcc'
+AR                  = 'mips-ar'
 IncludePaths        = Includes
 LibPaths            = '-L /home/saud/Dropbox/pycharmProjects/ERA/compiler/ERAPlatform/mips/'
 CFLAGS              = eval('-std=c99 -nostdlib -O1 -msoft-float -march=mips1 -EL -g -Wall $(IncludePaths)')
@@ -123,20 +128,23 @@ def listobj():
   printlist(OBJ_All)
 
 ```
-First of all, `makefile.py` must import pymake2. To enable detailed error messages, `Debug` variable should be set to True. The above snippet is self-explanatory to any one used to work with makefiles. 
+First of all, `makefile.py` must import pymake2. To enable detailed error messages in the build process, `Debug` variable should be set to True. The above snippet is self-explanatory to any one used to work with makefiles. 
 
 ### Features of pymake2 ###
 - `makefile.py` follows similar approach of GNU make, but with the flexibility of Python
-- the `eval` function recognizes the format of makefile-like variables, such as `$(BUILDdir)` and `$(CC)`
+- pymake2 automatically highlights error, warning, and info messages produced by the compiler or the linker. This is especially useful when the used toolchain does not prints colorful outputs. As shown in the snippet above, to get highlighted outputs, you need to enable `HighlightErrors`, `HighlightWarnings`, and `HighlightNotes` as needed. In addition, the highlighted outputs only works with the commands provided by pymake2 such as `compile`, `link`, and `archive` and not with `shell`, `sh`, or `run` commands.
+- the `eval` function recognizes the format of makefile-like variables, such as `$(BUILDdir)` and `$(CC)`, ...etc. This feature helps to port existing makefiles to pymake2. In addition, the `eval` function evaluates environment variables in the same way. However, variables defined in the makefile has precedence over the environment variables. In other words, redefining environment variables in the makefile overrides them.
 - the target function accepts unlimited number of arguments to specify dependencies.
     - the dependency can be another target function/s, or a list of files.
     - pymake2 tries to satisfy all the dependences before invoking the target function.
     - if a target function is in the dependency list of another target function, it must return True upon success.
-- pymake2 provides a set of helper functions; below is I list some of them, see `make.py` in the source files for more details.
+- pymake2 provides a set of helper functions; below I list some of them, see `make.py` in the source files for more details about their parameters.
     - `shell('cmd')` and `sh('cmd')`: runs the shell command and return the output.
     - `run('cmd')`: runs the shell command without returning the output.
     - `compile(...)`: if necessary, compiles the source files using the specified compiler along with the passed flags.
     - `link(...)`: if necessary, links the object files to provide the executable using the passed linker and flags.
+    - `archive(...)`: if necessary, archives the object files to provide the output library using the passed archiver such as `gcc-ar` along with the passed flags.
+- pymake2 automatically recognizes space-separated lists (used in makefiles for source or object files) and converts them to Python lists. Therefore, the commands provided by pymake2 such as `compile` and `link` accepts both formats (Python list, and space-separated list).
 
 
 ### License ###
