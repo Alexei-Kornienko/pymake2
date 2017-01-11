@@ -6,7 +6,7 @@ import sarge
 import re
 import inspect
 import utility as util
-
+from time import sleep
 # makefileM = None # to be assigned upon importing
 
 # reP = re.compile(r'\$\((\w+)\)')
@@ -282,16 +282,22 @@ def sh(cmd, show_cmd=False, CaptureOutput = False, Timeout = -1):
     if CaptureOutput:
       if Timeout > -1:
         P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture(), async=True)
-        CMD = P.commands[0] #type: sarge.Command
-        util.wait_process(Timeout, CMD)
+        # sleep(3)
+        CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
+        timed_out = util.wait_process(Timeout, CMD)
+        if timed_out:
+          util.print_color('The command "%s" is timed out!'%cmd, util.tty_colors_cmds.On_Red)
         util.kill_alive_process(CMD)
       else:
         P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
     else:
       if Timeout > -1:
         P = sarge.run(cmd, shell=True, async=True)
-        CMD = P.commands[0] #type: sarge.Command
-        util.wait_process(Timeout, CMD)
+        # sleep(3)
+        CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
+        timed_out = util.wait_process(Timeout, CMD)
+        if timed_out:
+          util.print_color('The command "%s" is timed out!'%cmd, util.tty_colors_cmds.On_Red)
         util.kill_alive_process(CMD)
       else:
         P = sarge.run(cmd, shell=True)
@@ -314,11 +320,12 @@ def sh(cmd, show_cmd=False, CaptureOutput = False, Timeout = -1):
     
   
   
-def run(cmd, show_cmd=False, Highlight=False, Timeout = -1):
+def run(cmd, show_cmd=False, Highlight=False, Timeout = 10):
   """
   :param cmd: (str) the shell command
   :param show_cmd: (bool) print the command before executing it
   :param Highlight: (bool) apply color highlights for the outputs
+  :param Timeout: (float) any positive number in seconds
   :return:
   """
   if Highlight:
@@ -327,7 +334,6 @@ def run(cmd, show_cmd=False, Highlight=False, Timeout = -1):
     print(hl_out)
   else:
     success, outputs = sh(cmd, show_cmd, False, Timeout)
-    # retV = sarge.run(cmd, shell=True)
   
   return success
 

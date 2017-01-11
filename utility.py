@@ -221,13 +221,36 @@ def is_Highlight_ON():
 
   return False
 
-def wait_process(Timeout, Proc):
+def wait_process(Timeout, Proc, Print_statusTime = -1):
+  cindex = 0
+  timeStep = 0.1
+  sec_count = 1.0
+  CountDown = Timeout
+  
   T1 = time()
-  while time() - T1 < Timeout:
+  tdiff = time() - T1
+  while tdiff < Timeout:
     alive = Proc.poll()
     if alive is not None:
-      return
-    sleep(0.1)
+      stdout.write('\r                          \r')
+      return False
+    sleep(timeStep); sec_count -= timeStep
+    tdiff = time() - T1
+    CountDown = int(Timeout - tdiff)
+    if tdiff >= Print_statusTime and sec_count <=0:
+      sec_count = 1.0
+      if cindex == 0:
+        stdout.write('\r                          \r')
+        write_color('\rwaiting... [%d]'%CountDown, tty_colors_cmds.On_Yellow); stdout.flush()
+        cindex = 1
+      else:
+        stdout.write('\r                          \r')
+        write_color('\rwaiting... [%d]'%CountDown, tty_colors_cmds.On_Cyan) ; stdout.flush()
+        cindex = 0
+      
+
+  stdout.write('\r          \r')
+  return True # The Process is Timed Out
 
 def kill_alive_process(Proc):
   alive = Proc.poll()
