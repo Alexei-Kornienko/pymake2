@@ -24,6 +24,11 @@ import utility as util
 import make
 fd_out = None # used to bash auto complete only
 
+class argsT():
+  t = 'all'
+  f = None
+  j = 1
+
 class Target_t(object):
   def __init__(self, func, args, MakefileM):
     self.Name = func
@@ -182,7 +187,10 @@ def main():
   parser.add_argument('-j', metavar='Jobs', type=int, help='number of jobs used in the make process')
   
   argcomplete.autocomplete(parser)
-  args = parser.parse_args()
+  if len(sys.argv) >1:
+    args = parser.parse_args()
+  else:
+    args = argsT()
   
   if args.f:
     MakefilePath = args.f
