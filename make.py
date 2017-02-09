@@ -159,7 +159,7 @@ def link(linker, flags, objects, executable):
   if type(objects) is list:
     objs = ' '.join(objects)
   else:
-    objs = objects
+    objs = objects.strip().strip('\n')
     
   objectsList = objs.split()
 
@@ -283,22 +283,28 @@ def sh(cmd, show_cmd=False, CaptureOutput = False, Timeout = -1):
       if Timeout > -1:
         P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture(), async=True)
         # sleep(3)
-        CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
-        timed_out = util.wait_process(Timeout, CMD)
-        if timed_out:
-          util.print_color('The command "%s" is timed out!'%cmd, util.tty_colors_cmds.On_Red)
-        util.kill_alive_process(CMD)
+        try:
+          CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
+          timed_out = util.wait_process(Timeout, CMD)
+          if timed_out:
+            util.print_color('The command "%s" is timed out!'%cmd, util.tty_colors_cmds.On_Red)
+          util.kill_alive_process(CMD)
+        except:
+          pass
       else:
         P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
     else:
       if Timeout > -1:
         P = sarge.run(cmd, shell=True, async=True)
         # sleep(3)
-        CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
-        timed_out = util.wait_process(Timeout, CMD)
-        if timed_out:
-          util.print_color('The command "%s" is timed out!'%cmd, util.tty_colors_cmds.On_Red)
-        util.kill_alive_process(CMD)
+        try:
+          CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
+          timed_out = util.wait_process(Timeout, CMD)
+          if timed_out:
+            util.print_color('The command "%s" is timed out!'%cmd, util.tty_colors_cmds.On_Red)
+          util.kill_alive_process(CMD)
+        except:
+          pass
       else:
         P = sarge.run(cmd, shell=True)
     
