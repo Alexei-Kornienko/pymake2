@@ -1,6 +1,7 @@
 from sys import stdout
 import inspect
 import traceback
+import re
 
 from time import time, sleep
 class tty_colors_cmds:
@@ -140,21 +141,61 @@ def get_colored(txt, fg_color='', bg_color='', Bold=False):
   B = '1' if Bold else '0'
   fg = fg_color if fg_color == '' else ';' + fg_color
   bg = bg_color if bg_color == '' else ';' + bg_color
-  
+  if type(txt) is unicode:
+    txt = txt.encode('UTF-8')
   ttycmd = '\033[{B}{fg}{bg}m{txt}\033[0m'.format(B=B,fg=fg,bg=bg, txt=txt)
   return ttycmd
   
 def tty_reset():
   stdout.write('\e[0m')
-  
+
+def get_regx_spans(txt, regxpattern):
+  spans = []
+  iterV = regxpattern.finditer(txt)
+  for m in iterV.next():
+    span = m.span()
+    spans.append(span)
+  if len(spans)> 0:
+    return spans
+  else:
+    return None
+
+def Highlight_custom(txt, pattern, color):
+  #type:(str, re._pattern_type, tuple[str]) -> str
+  if type(txt) is unicode:
+    txt = txt.encode('UTF-8')
+  retV = txt
+  if type(pattern) is re._pattern_type:
+    founds = pattern.findall(txt)
+    if len(founds) > 0:
+      s = founds[0]
+      colored_s = get_colored(s, color[0], color[1], Bold=True)
+      newtxt = pattern.sub(colored_s, txt)
+      retV = newtxt
+  elif type(pattern) is str:
+    s = pattern
+    colored_s = get_colored(s, color[0], color[1], Bold=True)
+    newtxt = txt.replace(pattern, colored_s)
+    retV = newtxt
+
+  return retV
+
+  # vars = re.findall(r'\$\((\w+)\)', txt)
+  # newtxt = re.sub(r'\$\((\w+)\)', r'{\1}', txt)
+  #
+  # repWith = get_colored('Warning', tty_colors.Yellow, tty_colors.On_IBlack, Bold=True)
+  # reTV = txt.replace('warning', repWith)
+  # reTV = reTV.replace('Warning', repWith)
+  # return reTV
+
 def HighlightWarnings(txt):
   #type:(str) -> str
-  
+
   repWith = get_colored('Warning', tty_colors.Yellow, tty_colors.On_IBlack, Bold=True)
   reTV = txt.replace('warning', repWith)
   reTV = reTV.replace('Warning', repWith)
   return reTV
-  
+
 def HighlightErrors(txt):
   #type:(str) -> str
   repWith = get_colored('Error', tty_colors.Red, tty_colors.On_IBlack, Bold=True)
@@ -195,9 +236,17 @@ def Print_Debuging_messages():
   
 def is_Highlight_ON():
   outerframe = inspect.stack()[1][0]
+  preFrame = outerframe.f_globals
   outerframe = outerframe.f_back
   outerframeGlobals = outerframe.f_globals
-  
+
+  try:
+    Highlighting = preFrame['_Highlighting']
+    if Highlighting:
+      return True
+  except:
+    pass
+
   try:
     HighlightWarnings = outerframeGlobals['HighlightWarnings']
     if HighlightWarnings:

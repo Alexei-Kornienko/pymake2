@@ -22,6 +22,7 @@ import sys
 import traceback
 import utility as util
 import make
+from makefile_template import gccTemplate
 fd_out = None # used to bash auto complete only
 
 class argsT():
@@ -197,8 +198,12 @@ def main():
   elif Auto_Target():
     MakefilePath = './makefile.py'
   else:
-    print 'No Make file, exiting!'
-    sys.exit()
+     retV = raw_input('No makefile exists!, do you want to creat one?(y/n): ')
+     if retV.lower() == 'y':
+        F = open('makefile.py', 'wb')
+        F.write(gccTemplate)
+        F.close()     
+     sys.exit()
   
   import imp
   pkgdir = os.path.normpath(os.path.dirname(__file__) + '/../')
@@ -210,7 +215,7 @@ def main():
   make.shell('rm -f *.pyc')
   Debug = getattr(makefileM, 'Debug', False)
   HighlightErrors = getattr(makefileM, 'HighlightErrors', False)
-  HighlightWarnings = getattr(makefileM, 'Debug', False)
+  HighlightWarnings = getattr(makefileM, 'HighlightWarnings', False)
   Targets = Parse_Makefile(MakefilePath, makefileM) #type: dict[str, Target_t]
   
   if args.t:
@@ -233,7 +238,7 @@ def main():
     #     func = getattr(makefileM, args.t)
         
   else:
-    print 'No target to build, exiting!'
+    print 'No target to build, exiting...'
     sys.exit()
 
     

@@ -6,10 +6,15 @@ import sarge
 import re
 import inspect
 import utility as util
+from utility import tty_colors as colors
+import fnmatch
+
 from time import sleep
 # makefileM = None # to be assigned upon importing
 
-# reP = re.compile(r'\$\((\w+)\)')
+_Highlighting = False
+_HighlightingDict = {}
+
 
 def eval(txt):
   outerframe = inspect.stack()[1][0]
@@ -36,7 +41,18 @@ def eval(txt):
 def printcolor(txt, fg='', bg='', B=False):
   msg = util.get_colored(txt, fg, bg, B)
   print msg
-def Highlight_Outputs(txt):
+
+def regx(pattern):
+  retV = re.compile(pattern, flags=re.IGNORECASE)
+  return retV
+
+def hl(regxP, fg_color=colors.Yellow, bg_color = ''):
+  global _Highlighting, _HighlightingDict
+  _Highlighting = True
+  _HighlightingDict[regxP] = (fg_color, bg_color)
+
+
+def _Highlight_Outputs(txt):
   outerframe = inspect.stack()[1][0]
   outerframe = outerframe.f_back
   outerframeGlobals = outerframe.f_globals
@@ -63,7 +79,43 @@ def Highlight_Outputs(txt):
   except:
     pass
 
+
+  try: #custom highlight
+
+    if _Highlighting:
+      for key in _HighlightingDict.keys():
+        color = _HighlightingDict[key]
+        retV = util.Highlight_custom(retV, key, color)
+  except Exception as e:
+    print e
+    pass
+
   return retV
+
+def find(root='./', filter='*', recursive = False, abslute = False, DirOnly = False):
+  srcfiles = []
+  rootdir = os.path.abspath(root) if abslute else os.path.normpath(root)
+  if recursive:
+    for cur_root, dir, files in os.walk(rootdir):
+      if DirOnly:
+        srcfiles.extend([cur_root + '/' + e for e in dir])
+      else:
+        for srcfile in fnmatch.filter(files, filter):
+          srcfiles.append(cur_root + '/' + srcfile)
+  else:
+    for cur_root, dir, files in os.walk(rootdir):
+      if DirOnly:
+        srcfiles.extend([cur_root + '/' + e for e in dir])
+      else:
+        for srcfile in fnmatch.filter(files, filter):
+          srcfiles.append(cur_root + '/' + srcfile)
+      break
+
+  if DirOnly:
+    # add the current root directory to the list
+    rootdir = os.path.abspath(root) if abslute else os.path.normpath(root)
+    srcfiles.append(rootdir)
+  return srcfiles
 
 
 def get_dir(path):
@@ -145,7 +197,7 @@ def compile(compiler, flags, sources, objects):
     util.print_color('Compiling: %s' % item, util.tty_colors_cmds.On_Cyan)
     success, outputs = sh(cmd, True, Highlight_NO)
     if Highlight_NO:
-      print(Highlight_Outputs(outputs))
+      print(_Highlight_Outputs(outputs))
       
     if not success:
     # if not run(cmd, show_cmd=True):
@@ -179,7 +231,7 @@ def link(linker, flags, objects, executable):
     hl = util.is_Highlight_ON()
     success, outputs = sh(cmd, True, hl)
     if hl:
-      print(Highlight_Outputs(outputs))
+      print(_Highlight_Outputs(outputs))
     
     if not success:
       util.print_color("Failed to link object files to assemble '%s'"%executable, util.tty_colors_cmds.BRed)
@@ -213,7 +265,7 @@ def archive(archiver, flags, objects, library):
     hl = util.is_Highlight_ON()
     success, outputs = sh(cmd, True, hl)
     if hl:
-      print(Highlight_Outputs(outputs))
+      print(_Highlight_Outputs(outputs))
     
     if not success:
       util.print_color("Failed to archive object files to assemble '%s'" % library, util.tty_colors_cmds.BRed)
@@ -262,6 +314,26 @@ def replace(srclist, term, repwith):
     return retV
   else:
     retV = srclist.replace(term, repwith)
+    return retV
+
+def retarget(srclist, targetP, omit=''):
+  if targetP.endswith('/'):
+    targetP = targetP[:-1]
+
+  if type(srclist) is list:
+    retV = []
+    for item in srclist:
+      x = item.replace(omit, '')
+      x = targetP + '/' + x
+      x = os.path.normpath(x)
+      retV.append(x)
+
+    return retV
+  else:
+    x = srclist.replace(omit, '')
+    x = targetP + '/' + x
+    x = os.path.normpath(x)
+    retV = x
     return retV
 
 def exclude(original, ignors):
@@ -336,7 +408,7 @@ def run(cmd, show_cmd=False, Highlight=False, Timeout = 10):
   """
   if Highlight:
     success, outputs = sh(cmd, show_cmd, True, Timeout)
-    hl_out = Highlight_Outputs(outputs)
+    hl_out = _Highlight_Outputs(outputs)
     print(hl_out)
   else:
     success, outputs = sh(cmd, show_cmd, False, Timeout)
@@ -361,3 +433,9 @@ def target(func):
   
   return target_func
 
+
+if __name__ == '__main__':
+    print 'testing find()'
+    flist = find(DirOnly=True, abslute=False)
+    printlist(flist)
+    print 'File List has %d items'%len(flist)
