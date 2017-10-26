@@ -1,10 +1,17 @@
 
 gccTemplate = """
+
 from pymake2 import *
 Debug = True # <-- set it to True to enable more debugging messages 
-HighlightErrors = True # To enable the highliter
+# HighlightErrors = True # To enable the highliter
 HighlightWarnings = True # To enable the highliter
 HighlightNotes = True # To enable the highliter
+
+# Custom Highlighting using regular expressions
+hl(regx(r'error:.+'), colors.IRed)
+# hl(regx(r'expression'), colors.IGreen, colors.On_Cyan)
+# hl('c', colors.IGreen)
+
 
 CC = 'gcc'
 CFLAGS = '-g -O2 -std=c99'

@@ -167,15 +167,15 @@ def Highlight_custom(txt, pattern, color):
   retV = txt
   if type(pattern) is re._pattern_type:
     founds = pattern.findall(txt)
-    if len(founds) > 0:
-      s = founds[0]
+    newtxt = txt
+    for s in founds:
       colored_s = get_colored(s, color[0], color[1], Bold=True)
-      newtxt = pattern.sub(colored_s, txt)
-      retV = newtxt
+      newtxt = newtxt.replace(s, colored_s)
+    retV = newtxt
   elif type(pattern) is str:
     s = pattern
     colored_s = get_colored(s, color[0], color[1], Bold=True)
-    newtxt = txt.replace(pattern, colored_s)
+    newtxt = txt.replace(s, colored_s)
     retV = newtxt
 
   return retV
