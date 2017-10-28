@@ -6,21 +6,21 @@ pymake2 is a simple Python-based make system. It brings simplicity and flexibili
 
 1. You can use `pip` to automatically download and install `pymake2` from the PyPi repository using the following command:
 
-      for the current user (user-site-packages):
-      ```
-      pip install --user pymake2
-      ```
+    for the current user (user-site-packages):
+    ```
+    pip install --user pymake2
+    ```
 
-      for system-wide installation:
-      ```
-      sudo pip install pymake2
-      ``` 
+    for system-wide installation:
+    ```
+    sudo pip install pymake2
+    ``` 
 
 2. You can always clone the repository and install it manually by running the following command:
 
-      ```
-      python setup.py install
-      ```
+    ```
+    python setup.py install
+    ```
 
 
 3. fkldsf
