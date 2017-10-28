@@ -15,12 +15,16 @@ pymake2 is a simple Python-based make system. It brings simplicity and flexibili
       ```
       sudo pip install pymake2
       ``` 
+
 2. You can always clone the repository and install it manually by running the following command:
 
       ```
       python setup.py install
       ```
+
+
 3. fkldsf
+
 
 
 4. sdfhjk
