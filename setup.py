@@ -20,7 +20,7 @@ class MyInstall(install):
 
 setup(
     name="pymake2",
-    version = "0.5.32",
+    version = "0.5.33",
     author = "Saud Wasly",
     author_email = "saudalwasli@gmail.com",
     description = ("pymake2 is a simple Python-based make system. It brings simplicity and flexibility of Python language to makefiles."),
