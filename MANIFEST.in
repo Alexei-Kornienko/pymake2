@@ -1,0 +1,4 @@
+# Tells what to include other than .py files
+#include pymake2/*.dat
+#recursive-include app/static *
+include README.md
