@@ -45,6 +45,7 @@ class Target_t(object):
     args_var = [getattr(MakefileM, item) for item in args_str if item != '']
     self.args_str = args_str
     self.args_var = args_var
+    self.result = None
     self.MakefileM = MakefileM
     self.Dependencies = args_var
     
@@ -84,6 +85,7 @@ class Target_t(object):
 
         if not retV:
           util.print_color('Target "%s" failed' %self.Name , util.tty_colors_cmds.BRed)
+        self.result = retV
         return retV
       except:
         util.print_color('Internal error in the target function "%s"' % self.Name, util.tty_colors_cmds.BRed)

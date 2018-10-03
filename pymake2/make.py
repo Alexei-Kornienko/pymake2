@@ -428,7 +428,7 @@ def target(func):
     if retV is None or retV == False:
       return False
     else:
-      return True
+      return retV
     # print 'after the func'
   
   return target_func
