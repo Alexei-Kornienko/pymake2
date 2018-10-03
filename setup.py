@@ -33,6 +33,7 @@ setup(
     #data_files = [('', ['__init__.py', 'pymake2', 'make.py', 'utility.py', 'makefile_template.py'])] ,
     long_description=read('README.md'),
     classifiers=[
+        "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",        
         "License :: OSI Approved :: MIT License",
