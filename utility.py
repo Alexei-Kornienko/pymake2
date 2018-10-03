@@ -141,8 +141,6 @@ def get_colored(txt, fg_color='', bg_color='', Bold=False):
   B = '1' if Bold else '0'
   fg = fg_color if fg_color == '' else ';' + fg_color
   bg = bg_color if bg_color == '' else ';' + bg_color
-  if type(txt) is unicode:
-    txt = txt.encode('UTF-8')
   ttycmd = '\033[{B}{fg}{bg}m{txt}\033[0m'.format(B=B,fg=fg,bg=bg, txt=txt)
   return ttycmd
   
@@ -162,8 +160,6 @@ def get_regx_spans(txt, regxpattern):
 
 def Highlight_custom(txt, pattern, color):
   #type:(str, re._pattern_type, tuple[str]) -> str
-  if type(txt) is unicode:
-    txt = txt.encode('UTF-8')
   retV = txt
   if type(pattern) is re._pattern_type:
     founds = pattern.findall(txt)

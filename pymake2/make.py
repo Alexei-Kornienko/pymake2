@@ -40,7 +40,7 @@ def eval(txt):
 
 def printcolor(txt, fg='', bg='', B=False):
   msg = util.get_colored(txt, fg, bg, B)
-  print msg
+  print(msg)
 
 def regx(pattern):
   retV = re.compile(pattern, flags=re.IGNORECASE)
@@ -87,7 +87,7 @@ def _Highlight_Outputs(txt):
         color = _HighlightingDict[key]
         retV = util.Highlight_custom(retV, key, color)
   except Exception as e:
-    print e
+    print(e)
     pass
 
   return retV
@@ -135,7 +135,7 @@ def printlist(lst):
   if type(lst) is not list:
     lst = lst.split()
   for i in lst:
-    print i
+    print(i)
   
   return lst
     
@@ -169,7 +169,7 @@ def compile(compiler, flags, sources, objects):
 
   if len(srcs) != len(objs):
     util.write_color('Error: ', util.tty_colors_cmds.Red)
-    print 'the length of the source files list does not match with objects files list'
+    print('the length of the source files list does not match with objects files list')
     return
   
   for i, item in enumerate(srcs):
@@ -181,7 +181,7 @@ def compile(compiler, flags, sources, objects):
     objFile = objFile.split('.')[0]
     if srcFile != objFile:
       util.write_color('Compiling Error: ', util.tty_colors_cmds.BRed)
-      print 'source file %s and object file %s do not match. Make sure that the source and the object files lists are correspondent'%(item, objs[i])
+      print('source file %s and object file %s do not match. Make sure that the source and the object files lists are correspondent'%(item, objs[i]))
       return False
     if os.path.isfile(objs[i]): # if the object file already exists
       src_mTime = os.path.getmtime(item)
@@ -202,7 +202,7 @@ def compile(compiler, flags, sources, objects):
     if not success:
     # if not run(cmd, show_cmd=True):
       util.write_color('Error: ', util.tty_colors_cmds.BRed)
-      print 'failed to compile, \n  %s'%cmd
+      print('failed to compile, \n  %s'%cmd)
       return False
   
   return True
@@ -353,7 +353,7 @@ def sh(cmd, show_cmd=False, CaptureOutput = False, Timeout = -1):
   try:
     if CaptureOutput:
       if Timeout > -1:
-        P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture(), async=True)
+        P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture(), async_=True)
         # sleep(3)
         try:
           CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
@@ -367,7 +367,7 @@ def sh(cmd, show_cmd=False, CaptureOutput = False, Timeout = -1):
         P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
     else:
       if Timeout > -1:
-        P = sarge.run(cmd, shell=True, async=True)
+        P = sarge.run(cmd, shell=True, async_=True)
         # sleep(3)
         try:
           CMD = P.commands[0] #type: sarge.Command # FIXME: This line generates index exception sometime
@@ -435,7 +435,7 @@ def target(func):
 
 
 if __name__ == '__main__':
-    print 'testing find()'
+    print('testing find()')
     flist = find(DirOnly=True, abslute=False)
     printlist(flist)
-    print 'File List has %d items'%len(flist)
+    print('File List has %d items'%len(flist))

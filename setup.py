@@ -15,7 +15,7 @@ class MyInstall(install):
         install.run(self)
         #print("\n\n\n\nI did it!!!!\n\n\n\n")
         cmd = 'sudo activate-global-python-argcomplete'
-        print cmd
+        print(cmd)
         os.system(cmd)        
 
 setup(
@@ -29,9 +29,9 @@ setup(
     url = "https://bitbucket.org/saudalwasly/pymake2/src",
     install_requires=["argcomplete", "sarge"],
     packages=['pymake2'],
-    scripts=['pymake2/pymake2', 'pymake2/pmake2'],
+    scripts=['pymake2/pymake2'],
     #data_files = [('', ['__init__.py', 'pymake2', 'make.py', 'utility.py', 'makefile_template.py'])] ,
-    long_description=read('README.rst'),
+    long_description=read('README.md'),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Topic :: Utilities",        

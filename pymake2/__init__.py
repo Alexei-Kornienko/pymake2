@@ -1,6 +1,6 @@
 __author__ = 'Saud Wasly'
 
-from make import *
+from pymake2.make import *
 
 
 
