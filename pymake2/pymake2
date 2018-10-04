@@ -207,9 +207,9 @@ def main():
   elif Auto_Target():
     MakefilePath = './makefile.py'
   else:
-     retV = raw_input('No makefile exists!, do you want to creat one?(y/n): ')
+     retV = input('No makefile exists!, do you want to creat one?(y/n): ')
      if retV.lower() == 'y':
-        F = open('makefile.py', 'wb')
+        F = open('makefile.py', 'w')
         F.write(gccTemplate)
         F.close()     
      sys.exit()
