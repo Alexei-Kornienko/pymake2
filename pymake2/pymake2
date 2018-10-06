@@ -52,50 +52,58 @@ class Target_t(object):
         self.MakefileM = MakefileM
         self.Dependencies = args_var
 
-    def check_dependencies(self):
-        if len(self.Dependencies) == 0:
-            return True
-
-        util.print_color('Dependency checking of Target "%s"' % self.Name, util.tty_colors_cmds.On_Cyan)
-        for i, item in enumerate(self.Dependencies):
-            if type(item) is list:
-                for subitem in item:  # assumed to be list of file names (paths)
-                    if not os.path.isfile(subitem):
-                        util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
-                        print('%s does not exsist!' % subitem)
-                        return False
-            elif type(item) is str:
-                if not os.path.isfile(item):
-                    util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
-                    print('%s does not exsist!' % item)
-                    return False
-            elif type(item) is Target_t:  # another target
-                if not item.run():
-                    util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
-                    print('Target "%s" failed' % item.Name)
-                    return False
-
+    def is_up_to_date(self):
+        target_stamp = self.timestamp()
+        if self.Dependencies:
+            deps_stamp = self.check_dependencies()
+        else:
+            deps_stamp = None
+        if not target_stamp:
+            return False
+        if deps_stamp:
+            return target_stamp > deps_stamp
         return True
 
-    def run(self):
-        if self.check_dependencies():
-            util.print_color('Executing Target "%s"' % self.Name, util.tty_colors_cmds.On_Cyan)
-            try:
-                if len(self.args_var) == 0:
-                    retV = self.func()
-                else:
-                    retV = self.func(*self.args_var)
+    def timestamp(self):
+        return os.path.getmtime(self.Name) if os.path.isfile(self.Name) else None
 
-                if retV:
-                    self.result = retV
-                return True  # Consider no error and no output a sucessful build
-            except:
-                util.print_color('Target "%s" failed' % self.Name, util.tty_colors_cmds.BRed)
-                if Debug:
-                    traceback.print_exc()
-                return False
-        else:
-            return False
+    def check_dependencies(self):
+        stamps = []
+
+        util.print_color('Dependency checking of Target "%s"' % self.Name, util.tty_colors_cmds.On_Cyan)
+        for item in self.Dependencies:
+            if type(item) is list:
+                for subitem in item:  # assumed to be list of file names (paths)
+                    if os.path.isfile(subitem):
+                        stamps.append(os.path.getmtime(subitem))
+                    else:
+                        util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
+                        raise ValueError('%s does not exsist!' % subitem)
+            elif type(item) is str:
+                if os.path.isfile(item):
+                    stamps.append(os.path.getmtime(item))
+                else:
+                    util.write_color('Dependency Error @ Target "%s": ' % self.Name, util.tty_colors_cmds.BRed)
+                    raise ValueError('%s does not exsist!' % item)
+            elif type(item) is Target_t:  # another target
+                stamps.append(item.run())
+
+        return max(stamps) if stamps else None
+
+    def run(self):
+        if self.is_up_to_date():
+            util.print_color('Target "%s" is up to date' % self.Name, util.tty_colors_cmds.On_Green)
+            return self.timestamp()
+        util.print_color('Executing Target "%s"' % self.Name, util.tty_colors_cmds.On_Cyan)
+        try:
+            if len(self.args_var) == 0:
+                self.result = self.func()
+            else:
+                self.result = self.func(*self.args_var)
+            return self.timestamp()
+        except Exception as e:
+            util.print_color('Target "%s" failed' % self.Name, util.tty_colors_cmds.BRed)
+            raise e
 
 
 def Parse_Makefile(makefile_path, MakefileM):
