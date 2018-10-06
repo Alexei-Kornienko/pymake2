@@ -438,18 +438,7 @@ def target(func):
     :param func:
     :return:
     """
-
-    def target_func(*original_args, **original_kwargs):
-        # print 'before the func'
-        # print original_kwargs
-        retV = func(*original_args, **original_kwargs)
-        if retV is None or retV == False:
-            return False
-        else:
-            return retV
-        # print 'after the func'
-
-    return target_func
+    return func
 
 
 if __name__ == '__main__':
