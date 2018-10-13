@@ -11,6 +11,9 @@ import fnmatch
 
 from time import sleep
 
+from pymake2 import pymake
+from pymake2 import parser
+
 # makefileM = None # to be assigned upon importing
 
 _Highlighting = False
@@ -364,54 +367,42 @@ def shell(cmd):
     return P.stdout.text
 
 
-def sh(cmd, show_cmd=False, CaptureOutput=False, Timeout=-1):
+def sh(cmd, show_cmd=True, CaptureOutput=False, Timeout=-1):
     if show_cmd:
         print(cmd)
-    try:
-        if CaptureOutput:
-            if Timeout > -1:
-                P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture(), async_=True)
-                # sleep(3)
-                try:
-                    CMD = P.commands[0]  # type: sarge.Command # FIXME: This line generates index exception sometime
-                    timed_out = util.wait_process(Timeout, CMD)
-                    if timed_out:
-                        util.print_color('The command "%s" is timed out!' % cmd, util.tty_colors_cmds.On_Red)
-                    util.kill_alive_process(CMD)
-                except:
-                    pass
-            else:
-                P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
+    if CaptureOutput:
+        if Timeout > -1:
+            P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture(), async_=True)
+            # sleep(3)
+            CMD = P.commands[0]  # type: sarge.Command # FIXME: This line generates index exception sometime
+            timed_out = util.wait_process(Timeout, CMD)
+            if timed_out:
+                util.print_color('The command "%s" is timed out!' % cmd, util.tty_colors_cmds.On_Red)
+            util.kill_alive_process(CMD)
         else:
-            if Timeout > -1:
-                P = sarge.run(cmd, shell=True, async_=True)
-                # sleep(3)
-                try:
-                    CMD = P.commands[0]  # type: sarge.Command # FIXME: This line generates index exception sometime
-                    timed_out = util.wait_process(Timeout, CMD)
-                    if timed_out:
-                        util.print_color('The command "%s" is timed out!' % cmd, util.tty_colors_cmds.On_Red)
-                    util.kill_alive_process(CMD)
-                except:
-                    pass
-            else:
-                P = sarge.run(cmd, shell=True)
+            P = sarge.run(cmd, shell=True, stdout=sarge.Capture(), stderr=sarge.Capture())
+    else:
+        if Timeout > -1:
+            P = sarge.run(cmd, shell=True, async_=True)
+            # sleep(3)
+            CMD = P.commands[0]  # type: sarge.Command # FIXME: This line generates index exception sometime
+            timed_out = util.wait_process(Timeout, CMD)
+            if timed_out:
+                util.print_color('The command "%s" is timed out!' % cmd, util.tty_colors_cmds.On_Red)
+            util.kill_alive_process(CMD)
+        else:
+            P = sarge.run(cmd, shell=True)
 
-        outputs = ''
+    outputs = ''
 
-        if P.stdout and len(P.stdout.text) > 0:
-            outputs = P.stdout.text
-        if P.stderr and len(P.stderr.text) > 0:
-            if outputs == '':
-                outputs = P.stderr.text
-            else:
-                outputs += '\n' + P.stderr.text
-        return P.returncode == 0, outputs
-    except:
-        if util.get_makefile_var('Debug') == True:
-            util.Print_Debuging_messages()
-
-        return False, ''
+    if P.stdout and len(P.stdout.text) > 0:
+        outputs = P.stdout.text
+    if P.stderr and len(P.stderr.text) > 0:
+        if outputs == '':
+            outputs = P.stderr.text
+        else:
+            outputs += '\n' + P.stderr.text
+    return P.returncode == 0, outputs
 
 
 def run(cmd, show_cmd=False, Highlight=False, Timeout=10):
@@ -432,14 +423,19 @@ def run(cmd, show_cmd=False, Highlight=False, Timeout=10):
     return success
 
 
-def target(func):
+def target(name=None):
     """
       This is a decorator function
     :param func:
     :return:
     """
-    return func
+    def wrapper(func):
+        return pymake.Target(func, name)
+    return wrapper
 
+
+def file(name):
+    return pymake.Dependency(name)
 
 if __name__ == '__main__':
     print('testing find()')

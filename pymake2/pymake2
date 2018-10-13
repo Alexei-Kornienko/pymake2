@@ -12,6 +12,8 @@ HighlightWarnings = False
 import argparse
 import re
 
+from pymake2 import parser as make_parser
+
 try:
     pass
     import argcomplete
@@ -91,10 +93,6 @@ class Target_t(object):
         return max(stamps) if stamps else None
 
     def run(self):
-        if self.is_up_to_date():
-            util.print_color('Target "%s" is up to date' % self.Name, util.tty_colors_cmds.On_Green)
-            return self.timestamp()
-        util.print_color('Executing Target "%s"' % self.Name, util.tty_colors_cmds.On_Cyan)
         try:
             if len(self.args_var) == 0:
                 self.result = self.func()
@@ -105,33 +103,6 @@ class Target_t(object):
             util.print_color('Target "%s" failed' % self.Name, util.tty_colors_cmds.BRed)
             raise e
 
-
-def Parse_Makefile(makefile_path, MakefileM):
-    Targets = {}  # type: dict[str, Target_t]
-    if os.path.isfile(makefile_path):
-        f = open(makefile_path, 'r')
-        makefile_str = f.read()
-        f.close()
-        makefile_lines = makefile_str.splitlines()
-        for i, l in enumerate(makefile_lines):
-            if l.startswith('@target'):
-                target_func = re.findall(r'def\s+(\w+)\s*\(', makefile_lines[i + 1])
-                target_func = target_func[0]
-                target_args = re.findall(r'def\s+\w+\s*\((.*)\)', makefile_lines[i + 1])
-                target_args = target_args[0]
-                TargetV = Target_t(target_func, target_args, MakefileM)
-                Targets[target_func] = TargetV
-
-        # Detect Dependencies
-        for key in Targets.keys():
-            tarItem = Targets[key]
-            for i, item in enumerate(tarItem.Dependencies):
-                if callable(item):
-                    depTarget_str = tarItem.args_str[i]
-                    depTarget = Targets[depTarget_str]
-                    tarItem.Dependencies[i] = depTarget
-
-    return Targets
 
 
 def getTargets_forBash_autocomplete(makefile_path=''):
@@ -209,10 +180,14 @@ def print_cmd():
 def main():
     global Debug, HighlightErrors, HighlightWarnings
     parser = argparse.ArgumentParser(description='pymake2 is a simple make system implemented in python')
-    parser.add_argument('t', metavar='Target', help='the make target in the makefile').completer = complete_targets
     parser.add_argument('-f', metavar='MakefilePath', help='to pass a makefile, default = ./makefile.py')
-    # parser.add_argument('-t', metavar='Target', help='the make target in the make file').completer = complete_targets
     parser.add_argument('-j', metavar='Jobs', type=int, help='number of jobs used in the make process')
+    parser.add_argument(
+        't',
+        metavar='Target',
+        nargs='+',
+        help='the make target in the makefile'
+    ).completer = complete_targets
 
     argcomplete.autocomplete(parser)
     if len(sys.argv) > 1:
@@ -232,42 +207,17 @@ def main():
             F.close()
         sys.exit()
 
-    from importlib.machinery import SourceFileLoader
-    pkgdir = os.path.normpath(os.path.dirname(__file__) + '/../')
-    sys.path.insert(0, pkgdir)
-    if os.path.exists('/opt/pymake2'):
-        sys.path.insert(0, '/opt/')
+    mfile = make_parser.parse(MakefilePath)
 
-    makefileM = SourceFileLoader('makefileM', MakefilePath).load_module()
-    make.shell('rm -f *.pyc')
-    Debug = getattr(makefileM, 'Debug', False)
-    HighlightErrors = getattr(makefileM, 'HighlightErrors', False)
-    HighlightWarnings = getattr(makefileM, 'HighlightWarnings', False)
-    Targets = Parse_Makefile(MakefilePath, makefileM)  # type: dict[str, Target_t]
-
-    if args.t:
-        try:
-            selected_Target = Targets[args.t.strip()]  # type: Target_t
-            # func = getattr(makefileM, args.t)
-        except:
-            util.print_color('Error: target function "%s" does not exist!' % args.t, util.tty_colors_cmds.BRed)
-            if Debug:
-                traceback.print_exc()
-            sys.exit()
-
-        retV = selected_Target.run()
-        return retV
-
-        # attrs = dir(makefileM)
-        # for attr in attrs:
-        #   if attr==args.t:
-        #     func = getattr(makefileM, args.t)
-
-    else:
+    if not args.t:
         print('No target to build, exiting...')
-        sys.exit()
-
-    # print 'Done !'
+        sys.exit(1)
+    for target in args.t:
+        try:
+            mfile.targets[target].build()
+        except KeyError:
+            util.print_color('Error: target "%s" does not exist!' % args.t, util.tty_colors_cmds.BRed)
+            sys.exit(1)
 
 
 if __name__ == '__main__':
