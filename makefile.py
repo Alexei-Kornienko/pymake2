@@ -6,7 +6,7 @@ test_requirements = pymake2.file('test-requirements.txt')
 
 @pymake2.target()
 def test(venv):
-    pymake2.sh('. .venv/bin/activate && python .venv/bin/nosetests --with-doctest pymake2 tests.unit')
+    pymake2.sh('. .venv/bin/activate && nosetests --with-doctest pymake2 tests.unit')
 
 
 @pymake2.target()

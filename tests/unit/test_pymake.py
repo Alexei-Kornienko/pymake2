@@ -1,3 +1,4 @@
+import os
 import unittest
 
 import pymake2.pymake as pymake
