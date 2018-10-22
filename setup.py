@@ -27,7 +27,7 @@ setup(
     url="https://bitbucket.org/saudalwasly/pymake2/src",
     install_requires=read('requirements.txt'),
     packages=['pymake2'],
-    scripts=['pymake2/pymake2'],
+    scripts=['pymake2/pymake3'],
     long_description=read('README.md'),
     classifiers=[
         "Programming Language :: Python :: 3",
