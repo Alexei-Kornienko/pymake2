@@ -15,7 +15,6 @@ import re
 from pymake2 import parser as make_parser
 
 try:
-    pass
     import argcomplete
 except ImportError:
     print('Warning: Autocomplete is not working\nYou need to install argcomplete package')
@@ -43,19 +42,11 @@ class argsT():
 
 
 def getTargets_forBash_autocomplete(makefile_path=''):
-    Targets = []
     if makefile_path == '':
         makefile_path = './makefile.py'
     if os.path.isfile(makefile_path):
-        f = open(makefile_path, 'rb')
-        makefile_str = f.read()
-        f.close()
-        makefile_lines = makefile_str.splitlines()
-        for i, l in enumerate(makefile_lines):
-            if l.startswith('@target'):
-                resV = re.findall(r'def\s+(\w+)\s*\(', makefile_lines[i + 1])
-                Targets.append(resV[0])
-    return Targets
+        mfile = make_parser.parse(makefile_path)
+    return mfile.targets.keys()
 
 
 def Auto_Target():
