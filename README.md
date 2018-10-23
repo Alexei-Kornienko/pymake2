@@ -4,6 +4,9 @@
 This is a clone of https://bitbucket.org/saudalwasly/pymake2/src/default/ package
 I converted it to git cause I don't like using Mercurial
 
+This library is currently in process of refactoring and is not recomended for general use.
+When refactoring will be finished and APIs will become stable I will bump version to 1.0
+
 
 pymake2 is a simple Python-based make system. It brings simplicity and flexibility of Python language to makefiles. The name 'pymake2' is chosen because 'pymake' is already used for another tool that re-implements the GNU make in python. pymake2 is different from pymake as it does not try to re-implements GNU make, but a new simple make system that uses Python for makefiles to leverage the language richness and flexibility. pymake2 parses makefile-like python scripts and provides useful messages to help understand what goes wrong during the build process.
 
