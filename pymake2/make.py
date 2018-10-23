@@ -5,14 +5,11 @@ import os
 import sarge
 import re
 import inspect
-import utility as util
-from utility import tty_colors as colors
+from pymake2 import utility as util
+from pymake2.utility import tty_colors as colors
 import fnmatch
 
-from time import sleep
-
 from pymake2 import pymake
-from pymake2 import parser
 
 # makefileM = None # to be assigned upon importing
 
