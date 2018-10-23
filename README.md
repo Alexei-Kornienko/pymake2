@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/Alexei-Kornienko/pymake2.svg?branch=master)](https://travis-ci.com/Alexei-Kornienko/pymake2)
+
 # README #
 This is a clone of https://bitbucket.org/saudalwasly/pymake2/src/default/ package
 I converted it to git cause I don't like using Mercurial
